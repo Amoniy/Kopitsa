@@ -1,4 +1,4 @@
-package ru.itmo.ctddev.Kopitsa.counter;
+package ru.itmo.ctddev.Kopitsa.expression;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -7,11 +7,11 @@ import java.util.stream.Stream;
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
  */
-public class Util {
+public class oldUtil {
     public static final Random RNG = new Random(59L);
 
     // Utility class
-    private Util() {
+    private oldUtil() {
     }
 
     private static int checks;
@@ -94,4 +94,5 @@ public class Util {
     public static <T> Op<T> op(final String name, final T f) {
         return new Op<>(name, f);
     }
+
 }

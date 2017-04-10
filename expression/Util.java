@@ -8,11 +8,10 @@ import java.util.stream.Stream;
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
  */
 public class Util {
-    public static final Random RNG = new Random(59L);
+    public static final Random RNG = new Random(60L);
 
     // Utility class
-    private Util() {
-    }
+    private Util() {}
 
     private static int checks;
 

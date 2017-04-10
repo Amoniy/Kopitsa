@@ -10,6 +10,7 @@ public class Main {
         System.out.println(new Add(new Const(5),new Const(3)).evaluate(1));
         //System.out.println(new Multiply(new Variable("x"), new Const(-1000000000)).evaluate(x));
         //int x = Integer.parseInt(args[0]);
-        //System.out.println(new Add(new Subtract(new Multiply(new Variable("x"), new Variable("x")), new Multiply(new Const(2), new Variable("x"))), new Const(1)).evaluate(x));
+        int x=3;
+        System.out.println(new Add(new Subtract(new Multiply(new Variable("x"), new Variable("x")), new Multiply(new Const(2), new Variable("x"))), new Const(1)).evaluate(x));
     }
 }
