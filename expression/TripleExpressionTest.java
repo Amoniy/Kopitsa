@@ -1,15 +1,17 @@
 package ru.itmo.ctddev.Kopitsa.expression;
 
-import static ru.itmo.ctddev.Kopitsa.expression.Util.*;
-
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
  */
-public class TripleExpressionTest {
+public class TripleExpressionTest extends ExpressionTest {
     public static void main(final String[] args) {
-        DoubleExpressionTest.main(args);
+        new TripleExpressionTest().run();
+    }
 
-        checkAssert(TripleExpressionTest.class);
+    @Override
+    protected void test() {
+        super.test();
+
         testExpression("10", new Const(10), (x, y, z) -> 10);
         testExpression("x", new Variable("x"), (x, y, z) -> x);
         testExpression("y", new Variable("y"), (x, y, z) -> y);
@@ -26,12 +28,11 @@ public class TripleExpressionTest {
                 ),
                 (x, y, z) -> x * y + (z - 1) / 10
         );
-
-        System.out.println("OK " + Util.getChecks());
     }
 
-    private static void testExpression(final String description, final TripleExpression actual, final TripleExpression expected) {
+    private void testExpression(final String description, final TripleExpression actual, final TripleExpression expected) {
         System.out.println("Testing " + description);
+        ops(description.length());
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 for (int k = 0; k < 10; k++) {

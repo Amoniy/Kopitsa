@@ -1,5 +1,4 @@
 package ru.itmo.ctddev.Kopitsa.expression.generic;
-import ru.itmo.ctddev.Kopitsa.expression.Util.*;
 
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)

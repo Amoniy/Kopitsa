@@ -1,5 +1,4 @@
 package ru.itmo.ctddev.Kopitsa.expression.parser;
-import static ru.itmo.ctddev.Kopitsa.expression.Util.*;
 import java.util.Arrays;
 
 /**

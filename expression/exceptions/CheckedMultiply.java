@@ -1,7 +1,5 @@
 package ru.itmo.ctddev.Kopitsa.expression.exceptions;
 
-import ru.itmo.ctddev.Kopitsa.expression.Operation;
-import ru.itmo.ctddev.Kopitsa.expression.SuperExpression;
 import ru.itmo.ctddev.Kopitsa.expression.TripleExpression;
 
 public class CheckedMultiply extends CheckedOperation {

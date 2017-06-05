@@ -1,4 +1,5 @@
 package ru.itmo.ctddev.Kopitsa.expression.generic;
+
 import ru.itmo.ctddev.Kopitsa.expression.BaseTest;
 
 import java.math.BigInteger;

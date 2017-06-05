@@ -1,5 +1,4 @@
 package ru.itmo.ctddev.Kopitsa.expression.parser;
-import static ru.itmo.ctddev.Kopitsa.expression.Util.*;
 import java.util.Arrays;
 
 /**
@@ -29,7 +28,6 @@ public class ParserBitwiseTest extends ParserTest {
     }
 
     public static void main(final String[] args) {
-        checkAssert(ParserBitwiseTest.class);
         new ParserBitwiseTest().run();
     }
 }

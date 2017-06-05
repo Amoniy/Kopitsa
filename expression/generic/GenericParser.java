@@ -7,9 +7,10 @@ import ru.itmo.ctddev.Kopitsa.expression.exceptions.UnknownSymbolException;
 import java.math.BigInteger;
 
 public class GenericParser<T extends Number> {
-    public GenericParser(String mode)throws UnknownModeException{
+    public GenericParser(String mode) throws UnknownModeException {
         this.mode = mode;
         switch (mode) {
+
             case "i":
                 this.mode = "Integer";
                 //constant=new Integer(0);
@@ -24,13 +25,27 @@ public class GenericParser<T extends Number> {
                 this.mode = "BigInteger";
                 constant = new GenericBigInteger(BigInteger.ZERO);
                 break;
+            case "u":
+                this.mode = "Int";
+                constant = new GenericInt(0);
+                break;
+            case "b":
+                this.mode = "Byte";
+                constant = new GenericByte((byte) 0);
+                break;
+            case "f":
+                this.mode = "Float";
+                constant = new GenericFloat(0f);
+                break;
             default:
                 throw new UnknownModeException(mode);
         }
     }
-    public Type<T> getType(){
+
+    public Type<T> getType() {
         return constant;
     }
+
     private int index;
     private String input;
     private GenericNumber constant;
@@ -184,6 +199,18 @@ public class GenericParser<T extends Number> {
                             constant = new GenericBigInteger();
                             constant = (GenericNumber) constant.parse(str.toString());
                             break;
+                        case "Int":
+                            constant = new GenericInt();
+                            constant = (GenericNumber) constant.parse(str.toString());
+                            break;
+                        case "Float":
+                            constant = new GenericFloat();
+                            constant = (GenericNumber) constant.parse(str.toString());
+                            break;
+                        case "Byte":
+                            constant = new GenericByte();
+                            constant = (GenericNumber) constant.parse(str.toString());
+                            break;
                     }
                 } catch (NumberFormatException e) {
                     throw new InvalidNumberException(str.toString());
@@ -205,79 +232,64 @@ public class GenericParser<T extends Number> {
                     case '*':
                         operation = '*';
                         break;
-                    case 'a':
-                        character = getOperand();
-                        if (character == 'b') {
-                            character = getOperand();
-                            if (character == 's') {
-                                operation = 'a';
-                                if (index == input.length()) {
-                                    throw new SyntaxException("Expression needed");
-                                }
-                                if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
-                                    throw new UnknownSymbolException("abs" + Character.toString(input.charAt(index)));
-                                }
-                                break;
-                            } else {
-                                throw new UnknownSymbolException("ab" + Character.toString(character));
-                            }
-                        } else {
-                            throw new UnknownSymbolException(Character.toString('a') + Character.toString(character));
+                    case 'a': {
+                        String oper = "a";
+                        for (int i = 0; i < 2; i++) {
+                            oper += getOperand();
                         }
+                        if (oper.equals("abs")) {
+                            operation = 'a';
+                            if (index == input.length()) {
+                                throw new SyntaxException("Expression needed");
+                            }
 
-                    case 'm':
-                        character = getOperand();
-                        if (character == 'o') {
-                            character = getOperand();
-                            if (character == 'd') {
-                                operation = 'm';
-                                if (index == input.length()) {
-                                    throw new SyntaxException("Expression needed");
-                                }
-                                if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
-                                    throw new UnknownSymbolException("mod" + Character.toString(input.charAt(index)));
-                                }
-                                break;
-                            } else {
-                                throw new UnknownSymbolException("mo" + Character.toString(character));
+                            if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
+                                throw new UnknownSymbolException("abs" + Character.toString(input.charAt(index)));
                             }
+                            break;
                         } else {
-                            throw new UnknownSymbolException(Character.toString('m') + Character.toString(character));
+                            throw new UnknownSymbolException(oper);
                         }
-                    case 's':
-                        character = getOperand();
-                        if (character == 'q') {
-                            character = getOperand();
-                            if (character == 'u') {
-                                character = getOperand();
-                                if (character == 'a') {
-                                    character=getOperand();
-                                    if(character=='r'){
-                                        character=getOperand();
-                                        if(character=='e'){
-                                            operation = 's';
-                                            if (index == input.length()) {
-                                                throw new SyntaxException("Expression needed");
-                                            }
-                                            if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
-                                                throw new UnknownSymbolException("square" + Character.toString(input.charAt(index)));
-                                            }
-                                            break;
-                                        }else {
-                                            throw new UnknownSymbolException("squar" + Character.toString(character));
-                                        }
-                                    }else {
-                                        throw new UnknownSymbolException("squa" + Character.toString(character));
-                                    }
-                                } else {
-                                    throw new UnknownSymbolException("squ" + Character.toString(character));
-                                }
-                            } else {
-                                throw new UnknownSymbolException("sq" + Character.toString(character));
+                    }
+
+                    case 'm': {
+                        String oper = "m";
+                        for (int i = 0; i < 2; i++) {
+                            oper += getOperand();
+                        }
+                        if (oper.equals("mod")) {
+                            operation = 'm';
+                            if (index == input.length()) {
+                                throw new SyntaxException("Expression needed");
                             }
+
+                            if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
+                                throw new UnknownSymbolException("mod" + Character.toString(input.charAt(index)));
+                            }
+                            break;
                         } else {
-                            throw new UnknownSymbolException(Character.toString('s') + Character.toString(character));
+                            throw new UnknownSymbolException(oper);
                         }
+                    }
+                    case 's': {
+                        String oper = "s";
+                        for (int i = 0; i < 5; i++) {
+                            oper += getOperand();
+                        }
+                        if (oper.equals("square")) {
+                            operation = 's';
+                            if (index == input.length()) {
+                                throw new SyntaxException("Expression needed");
+                            }
+
+                            if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
+                                throw new UnknownSymbolException("square" + Character.toString(input.charAt(index)));
+                            }
+                            break;
+                        } else {
+                            throw new UnknownSymbolException(oper);
+                        }
+                    }
                     case '/':
                         operation = '/';
                         break;

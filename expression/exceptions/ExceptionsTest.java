@@ -1,15 +1,14 @@
 package ru.itmo.ctddev.Kopitsa.expression.exceptions;
 
-import ru.itmo.ctddev.Kopitsa.expression.*;
-import ru.itmo.ctddev.Kopitsa.expression.parser.Parser;
+import ru.itmo.ctddev.Kopitsa.expression.Either;
+import ru.itmo.ctddev.Kopitsa.expression.TripleExpression;
+import ru.itmo.ctddev.Kopitsa.expression.Variable;
 import ru.itmo.ctddev.Kopitsa.expression.parser.ParserTest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.LongBinaryOperator;
-
-import static ru.itmo.ctddev.Kopitsa.expression.Util.*;
 
 /**
  * @author Niyaz Nigmatullin
@@ -18,7 +17,7 @@ import static ru.itmo.ctddev.Kopitsa.expression.Util.*;
 public class ExceptionsTest extends ParserTest {
     private final static int D = 5;
     private final static List<Integer> OVERFLOW_VALUES = new ArrayList<>();
-    private final char[] CHARS = "AZ-+*%()[]<>".toCharArray();
+    private final char[] CHARS = "AZ+-*%()[]<>".toCharArray();
 
     public static final Variable VX = new Variable("x");
     public static final Variable VY = new Variable("y");
@@ -33,8 +32,6 @@ public class ExceptionsTest extends ParserTest {
         addRange(OVERFLOW_VALUES, D, Integer.MAX_VALUE / 2);
         addRange(OVERFLOW_VALUES, D, Integer.MAX_VALUE - D);
     }
-
-    private int subtests = 0;
 
     protected final List<Op<String>> parsingTest = new ArrayList<>(Arrays.asList(
             op("No first argument", "* y * z"),
@@ -58,13 +55,12 @@ public class ExceptionsTest extends ParserTest {
 
     private void testParsingErrors() {
         for (final Op<String> op : parsingTest) {
-            total++;
             try {
+                ops(op.f.length());
                 new ExpressionParser().parse(op.f);
                 assert false : "Successfully parsed " + op.f;
             } catch (final Exception e) {
-                System.out.format("%-30s %s", op.name, e.getClass().getSimpleName() + ": " + e.getMessage());
-                System.out.println();
+                System.out.format("%-30s %s%n", op.name, e.getClass().getSimpleName() + ": " + e.getMessage());
             }
         }
     }
@@ -75,8 +71,6 @@ public class ExceptionsTest extends ParserTest {
         testOverflow((a, b) -> a * b, "*", new CheckedMultiply(VX, VY));
         testOverflow((a, b) -> b == 0 ? Long.MAX_VALUE : a / b, "/", new CheckedDivide(VX, VY));
         testOverflow((a, b) -> -b, "<- ignore first argument, unary -", new CheckedNegate(VY));
-
-        System.out.println("OK, " + subtests + " subtests");
     }
 
     protected void testOverflow(final LongBinaryOperator f, final String op, final TripleExpression expression) {
@@ -91,7 +85,7 @@ public class ExceptionsTest extends ParserTest {
                         throw new AssertionError("Unexpected error in " + a + " " + op + " " + b, e);
                     }
                 }
-                ++subtests;
+                op();
             }
         }
     }
@@ -106,13 +100,22 @@ public class ExceptionsTest extends ParserTest {
     protected TripleExpression parse(final String expression, final boolean reparse) {
         final Parser parser = new ExpressionParser();
         if (expression.length() > 10) {
-            loop:
-            for (final char ch : CHARS) {
+            loop: for (final char ch : CHARS) {
                 for (int i = 0; i < 10; i++) {
                     final int index = 1 + randomInt(expression.length() - 2);
-                    final char c = expression.charAt(index);
-                    if ("-( *".indexOf(c) < 0 && !Character.isLetterOrDigit(c)) {
+                    int pi = index - 1;
+                    while (Character.isWhitespace(expression.charAt(pi))) {
+                        pi--;
+                    }
+                    int ni = index;
+                    while (Character.isWhitespace(expression.charAt(ni))) {
+                        ni++;
+                    }
+                    final char pc = expression.charAt(pi);
+                    final char nc = expression.charAt(ni);
+                    if ("-(*".indexOf(nc) < 0 && nc != ch && pc != ch && !Character.isLetterOrDigit(nc)) {
                         final String input = expression.substring(0, index) + ch + expression.substring(index);
+                        ops(input.length());
                         try {
                             parser.parse(input);
                             throw new AssertionError("Parsing error expected for " + expression.substring(0, index) + "<ERROR_INSERTED -->" + ch + "<-- ERROR_INSERTED>" + expression.substring(index));

@@ -2,8 +2,6 @@ package ru.itmo.ctddev.Kopitsa.expression.exceptions;
 
 import java.util.Arrays;
 
-import static ru.itmo.ctddev.Kopitsa.expression.Util.op;
-
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
  */

@@ -1,15 +1,8 @@
 package ru.itmo.ctddev.Kopitsa.expression.exceptions;
 
 import ru.itmo.ctddev.Kopitsa.expression.*;
-import ru.itmo.ctddev.Kopitsa.expression.parser.Parser;
 
 public class ExpressionParser implements Parser {
-    /*private void tryCorrectness(String input) throws UnknownSymbolException {
-        if (input.contains("absx") || input.contains("absy") || input.contains("absz") || input.contains("sqrtx") || input.contains("sqrty") || input.contains("sqrtz")) {
-            throw new UnknownSymbolException("Wrong input");
-        }
-    }*/
-
     private int index;
     private String input;
     private int constant;
@@ -23,24 +16,46 @@ public class ExpressionParser implements Parser {
         operation = 0;
         variable = 0;
         bracketBalance = 0;
-        //this.input = input.replaceAll("\\s", "");
         this.input = input;
-        //tryCorrectness(input);
-        TripleExpression answer = tryAdding();
+        /*TripleExpression answer = tryAdding();
+        while (index<input.length()-1) {
+            if (operation == 'm') {
+                answer = new CheckedMin(answer, tryAdding());
+            }
+            if(operation=='M'){
+                answer=new CheckedMax(answer,tryAdding());
+            }
+        }*/
+        TripleExpression answer = tryMinMax();
+
         if (index + 1 < this.input.length()) {
             throw new SyntaxException("Wrong syntax");
         }
         if (bracketBalance != 0) {
-            throw new SyntaxException("Wrong syntax");
+            throw new SyntaxException("Bracket exception");
         }
         return answer;
     }
 
+    private TripleExpression tryMinMax() throws SyntaxException, InvalidNumberException, UnknownSymbolException {
+        TripleExpression left = tryAdding();
+        while (true) {
+            switch (operation) {
+                case 'm':
+                    left = new CheckedMin(left, tryAdding());
+                    break;
+                case 'M':
+                    left = new CheckedMax(left, tryAdding());
+                    break;
+                default:
+                    return left;
+            }
+        }
+    }
 
     private TripleExpression tryAdding() throws SyntaxException, InvalidNumberException, UnknownSymbolException {
         TripleExpression left = tryMultiplying();
         while (true) {
-
             switch (operation) {
                 case '-':
                     left = new CheckedSubtract(left, tryMultiplying());
@@ -86,16 +101,14 @@ public class ExpressionParser implements Parser {
                 answer = new CheckedNegate(tryBrackets());
                 break;
             case '(':
-                answer = tryAdding();
+                answer = tryMinMax();
                 singleParse();
                 break;
             case 'a':
                 answer = new CheckedAbs(tryBrackets());
-                //singleParse();
                 break;
             case 's':
                 answer = new CheckedSqrt(tryBrackets());
-                //singleParse();
                 break;
             default://я сюда никогда не зайду
                 throw new SyntaxException("Expression starts with " + Character.toString(operation));
@@ -108,10 +121,6 @@ public class ExpressionParser implements Parser {
         if (index < input.length()) {
             index++;
             char ret = input.charAt(index - 1);
-            /*while(Character.isWhitespace(ret)){
-                index++;
-                ret=input.charAt(index-1);
-            }*/
             return ret;
         } else {
             return '#';
@@ -177,54 +186,11 @@ public class ExpressionParser implements Parser {
                     case '*':
                         operation = '*';
                         break;
-                    case 'a':{
-                        /*character = getOperand();
-                        if (character == 'b') {
-                            character = getOperand();
-                            if (character == 's') {
-                                operation = 'a';
-                                if (index == input.length()) {
-                                    throw new SyntaxException("Expression needed");
-                                }
-                                if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
-                                    throw new UnknownSymbolException("abs" + Character.toString(input.charAt(index)));
-                                }
-                                break;
-                            } else {
-                                throw new UnknownSymbolException("ab" + Character.toString(character));
-                            }
-                        } else {
-                            throw new UnknownSymbolException(Character.toString('a') + Character.toString(character));
-                        }
-                    case 's':
-                        character = getOperand();
-                        if (character == 'q') {
-                            character = getOperand();
-                            if (character == 'r') {
-                                character = getOperand();
-                                if (character == 't') {
-                                    operation = 's';
-                                    if (index == input.length()) {
-                                        throw new SyntaxException("Expression needed");
-                                    }
-                                    if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
-                                        throw new UnknownSymbolException("sqrt" + Character.toString(input.charAt(index)));
-                                    }
-                                    break;
-                                } else {
-                                    throw new UnknownSymbolException("sqr" + Character.toString(character));
-                                }
-                            } else {
-                                throw new UnknownSymbolException("sq" + Character.toString(character));
-                            }
-                        } else {
-                            throw new UnknownSymbolException(Character.toString('s') + Character.toString(character));
-                        }*/
+                    case 'a': {
                         String oper = "a";
                         for (int i = 0; i < 2; i++) {
                             oper += getOperand();
                         }
-
                         if (oper.equals("abs")) {
                             operation = 'a';
                             if (index == input.length()) {
@@ -236,29 +202,57 @@ public class ExpressionParser implements Parser {
                             }
                             break;
                         } else {
-                            throw new UnknownSymbolException(Character.toString(character));
+                            throw new UnknownSymbolException(oper);
                         }
-                }
-
-                case 's': {
-                    String oper = "s";
-                    for (int i = 0; i < 3; i++) {
-                        oper += getOperand();
                     }
+                    case 'm': {
+                        String oper = "m";
+                        for (int i = 0; i < 2; i++) {
+                            oper += getOperand();
+                        }
+                        if (oper.equals("min")) {
+                            operation = 'm';
+                            if (index == input.length()) {
+                                throw new SyntaxException("Expression needed");
+                            }
 
-                    if (oper.equals("sqrt")) {
-                        operation = 's';
-                        if (index == input.length()) {
-                            throw new SyntaxException("Expression needed");
+                            if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
+                                throw new UnknownSymbolException("min" + Character.toString(input.charAt(index)));
+                            }
+                            break;
+                        } else if (oper.equals("max")) {
+                            operation = 'M';
+                            if (index == input.length()) {
+                                throw new SyntaxException("Expression needed");
+                            }
+
+                            if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
+                                throw new UnknownSymbolException("max" + Character.toString(input.charAt(index)));
+                            }
+                            break;
+                        } else {
+                            throw new UnknownSymbolException(oper);
                         }
-                        if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
-                            throw new UnknownSymbolException("sqrt" + Character.toString(input.charAt(index)));
-                        }
-                        break;
-                    } else {
-                        throw new UnknownSymbolException(Character.toString(character));
                     }
-                }
+                    case 's': {
+                        String oper = "s";
+                        for (int i = 0; i < 3; i++) {
+                            oper += getOperand();
+                        }
+
+                        if (oper.equals("sqrt")) {
+                            operation = 's';
+                            if (index == input.length()) {
+                                throw new SyntaxException("Expression needed");
+                            }
+                            if (!(input.charAt(index) == ' ' || input.charAt(index) == '(' || input.charAt(index) == '-')) {
+                                throw new UnknownSymbolException("sqrt" + Character.toString(input.charAt(index)));
+                            }
+                            break;
+                        } else {
+                            throw new UnknownSymbolException(oper);
+                        }
+                    }
                     case '/':
                         operation = '/';
                         break;
